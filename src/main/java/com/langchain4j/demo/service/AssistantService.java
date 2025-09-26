@@ -1,8 +1,10 @@
 package com.langchain4j.demo.service;
 
 import com.langchain4j.demo.Assistant;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+@Service
 public class AssistantService {
 
     private final Assistant assistant;

@@ -1,28 +1,34 @@
 package com.langchain4j.demo.controller;
 
-import com.langchain4j.demo.service.AssistantService;
+import com.langchain4j.demo.service.Assistant;
+import com.langchain4j.demo.service.StreamingAssistant;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-
-import static org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE;
 
 @RestController
 public class AssistantController {
 
-    private final AssistantService assistantService;
+    private final Assistant assistant;
+    private final StreamingAssistant streamingAssistant;
 
-    public AssistantController(AssistantService assistantService) {
-        this.assistantService = assistantService;
+    public AssistantController(Assistant assistant,  StreamingAssistant streamingAssistant) {
+        this.assistant = assistant;
+        this.streamingAssistant = streamingAssistant;
     }
 
     @GetMapping(value = "/assistant")
-    public String assistant(String chatId, String userMessage) {
-        return assistantService.chat(chatId, userMessage);
+    public String assistant(
+            @RequestParam(value="sessionId") String sessionId,
+            @RequestParam(value="message", required = false, defaultValue= "Hello") String message) {
+        return assistant.chat(sessionId, message);
     }
 
-    @GetMapping(value = "/streamingAssistant", produces = TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> streamingAssistant(String chatId, String userMessage) {
-        return assistantService.chatStream(chatId, userMessage);
+    @GetMapping(value = "/streamingAssistant", produces = "text/event-stream")
+    public Flux<String> streamingAssistant(
+            @RequestParam(value="sessionId") String sessionId,
+            @RequestParam(value="message", required = false, defaultValue = "Hello") String message) {
+        return streamingAssistant.chatStream(sessionId, message);
     }
 }
